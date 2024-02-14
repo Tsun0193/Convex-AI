@@ -9,6 +9,7 @@ const NAME = faker.person.firstName();
 export default function App() {
   const messages = useQuery(api.messages.list);
   const sendMessage = useMutation(api.messages.send);
+  const sendReaction = useMutation(api.messages.reaction);
 
   const [newMessageText, setNewMessageText] = useState("");
 
@@ -33,8 +34,9 @@ export default function App() {
           className={message.author === NAME ? "message-mine" : ""}
         >
           <div>{message.author}</div>
-
-          <p>{message.body}</p>
+          <p>{message.body}
+          
+          </p>
         </article>
       ))}
       <form

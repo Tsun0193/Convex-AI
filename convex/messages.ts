@@ -18,3 +18,11 @@ export const send = mutation({
     await ctx.db.insert("messages", { body, author });
   },
 });
+
+export const reaction = mutation({
+  args: { messageId: v.id("messages"), reactor: v.string(), type: v.string() },
+  handler: async (ctx, { messageId, reactor, type }) => {
+    // Add a reaction to a message.
+    await ctx.db.insert("reaction", { messageId, reactor, type });
+  },
+});
