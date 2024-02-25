@@ -2,6 +2,8 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "../convex/_generated/api";
 import { useEffect, useState } from "react";
 import { faker } from "@faker-js/faker";
+import Message from './Message.tsx'
+import ListReaction from './ListReaction'
 
 // For demo purposes. In a real app, you'd have real user data.
 const NAME = faker.person.firstName();
@@ -9,9 +11,9 @@ const NAME = faker.person.firstName();
 export default function App() {
   const messages = useQuery(api.messages.list);
   const sendMessage = useMutation(api.messages.send);
-  const sendReaction = useMutation(api.messages.reaction);
 
   const [newMessageText, setNewMessageText] = useState("");
+  const [showListReaction, setShowListReaction] = useState("");
 
   useEffect(() => {
     // Make sure scrollTo works on button click in Chrome
@@ -28,21 +30,29 @@ export default function App() {
           Connected as <strong>{NAME}</strong>
         </p>
       </header>
-      {messages?.map((message) => (
-        <article
-          key={message._id}
-          className={message.author === NAME ? "message-mine" : ""}
-        >
-          <div>{message.author}</div>
-          <p>{message.body}
-          
-          </p>
-        </article>
-      ))}
+      <div className="box-chat">
+        {messages?.map((message) => (
+          <Message 
+            message={message}
+            isOwner={message.author === NAME}
+            onSetReaction={() => {
+              if (message._id == showListReaction) {
+                setShowListReaction("")
+              } else setShowListReaction(message._id)
+            }}
+          >
+            {showListReaction == message._id ? (
+              <ListReaction 
+                msg_id={message._id} 
+                user_id={NAME} 
+                callback={() => setShowListReaction("")} />) : <></>}
+          </Message>
+        ))}
+      </div>
       <form
         onSubmit={async (e) => {
           e.preventDefault();
-          await sendMessage({ body: newMessageText, author: NAME });
+          await sendMessage({ body: newMessageText, author: NAME, reactions: [] });
           setNewMessageText("");
         }}
       >

@@ -7,22 +7,38 @@ export const list = query({
     // Grab the most recent messages.
     const messages = await ctx.db.query("messages").order("desc").take(100);
     // Reverse the list so that it's in a chronological order.
-    return messages.reverse();
+    return messages.reverse();    
   },
 });
 
 export const send = mutation({
-  args: { body: v.string(), author: v.string() },
-  handler: async (ctx, { body, author }) => {
+  args: { body: v.string(), author: v.string(), reactions: v.array(v.object({
+      user_id: v.string(),
+      emo: v.string()
+    })) },
+  handler: async (ctx, { body, author, reactions }) => {
     // Send a new message.
-    await ctx.db.insert("messages", { body, author });
+    await ctx.db.insert("messages", { body, author, reactions: [] });
   },
 });
 
-export const reaction = mutation({
-  args: { messageId: v.id("messages"), reactor: v.string(), type: v.string() },
-  handler: async (ctx, { messageId, reactor, type }) => {
-    // Add a reaction to a message.
-    await ctx.db.insert("reaction", { messageId, reactor, type });
-  },
-});
+export const updateReaction = mutation({
+  args: { _id: v.id("messages"), user_id: v.string(), emo: v.string()},
+  handler: async (ctx, {_id, user_id, emo}) => {
+    const msg = await ctx.db.get(_id)
+    if (msg == null) {
+      console.log("hello")
+      return;
+    }
+    const reactions = msg.reactions
+    let setted = false
+    reactions.forEach(item => {
+      if (item.user_id == user_id) {
+        item.emo = emo
+        setted = true
+      }
+    })
+    if(!setted) reactions.push({user_id: user_id, emo: emo})    
+    await ctx.db.patch(_id, { reactions: reactions })
+  }
+})

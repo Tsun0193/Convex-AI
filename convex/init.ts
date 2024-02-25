@@ -34,6 +34,7 @@ export default internalMutation({
       await ctx.scheduler.runAfter(totalDelay, api.messages.send, {
         author,
         body,
+        reactions: []
       });
     }
   },
