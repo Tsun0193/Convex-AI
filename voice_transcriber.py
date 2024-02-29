@@ -54,9 +54,13 @@ def main():
     args = parser.parse_args()
 
     processor, model = load(args.model, args.device)
-    data = preprocess(args.data, processor, args.device)
-    transcript = inference(data, model, processor, args.language, args.device)
-    print(transcript)
+    # Loop until the user exits
+    while True:
+        data = preprocess(args.data, processor, args.device)
+        transcript = inference(data, model, processor, args.language, args.device)
+        print(transcript)
+        if input('Press "q" to exit or any other key to continue: ') == "q":
+            break
 
 if __name__ == "__main__":
     main()
