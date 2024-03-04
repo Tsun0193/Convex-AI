@@ -228,7 +228,27 @@ button {
   border-color: var(--focus-ring);
 }
 
-.chat form > button {
+.chat form div.voice {
+  appearance: none;
+  width: 48px;
+  height: 48px;
+  border: 0;
+  border-radius: 50%;
+  position: absolute;
+  right: 80px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: white;
+  font-size: 0;
+  transition: 0.15s ease-in-out opacity;
+
+  background-image: url('./micro.png');
+  background-size: 24px;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.chat form button.submit {
   appearance: none;
   width: 48px;
   height: 48px;
@@ -277,4 +297,27 @@ article button:has(span) {
 
 article button span {
   padding-left: 0.2em;
+}
+
+
+.voice_box {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  position: fixed;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.1);
+  z-index: 999;
+  width: 500px;
+  top: 50%;
+  left: 50%;
+  background-color: #000;
+  padding: 20px 30px;
+  transform: translate(-50%, -50%);
+}
+
+.react-mic {
+  width: 100%;
+  height: 20px;
+  padding: 0;
 }
