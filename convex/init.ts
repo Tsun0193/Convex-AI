@@ -32,6 +32,7 @@ export default internalMutation({
     for (const [author, body, delay] of seedMessages) {
       totalDelay += delay;
       await ctx.scheduler.runAfter(totalDelay, api.messages.send, {
+        type: 'text',
         author,
         body,
         reactions: []

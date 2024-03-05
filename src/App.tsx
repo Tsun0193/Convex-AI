@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { faker } from "@faker-js/faker";
 import Message from './Message.tsx'
 import ListReaction from './ListReaction'
+import ReactionDetail from './ReactionDetail'
+import ReactRecorder from './ReactRecorder'
 
 // For demo purposes. In a real app, you'd have real user data.
 const NAME = faker.person.firstName();
@@ -15,6 +17,10 @@ export default function App() {
   const [newMessageText, setNewMessageText] = useState("");
   const [showListReaction, setShowListReaction] = useState("");
 
+  const [showVoice, setShowVoice] = useState(false)
+
+  const [reactDetail, setReactDetail] = useState(undefined)
+
   useEffect(() => {
     // Make sure scrollTo works on button click in Chrome
     setTimeout(() => {
@@ -24,6 +30,9 @@ export default function App() {
 
   return (
     <main className="chat">
+      {showVoice && <ReactRecorder className="voice_box" callback={(url) => {
+        sendMessage({type: 'voice', body: url, author: NAME, reactions: [] })
+      }} />}
       <header>
         <h1>Convex Chat</h1>
         <p>
@@ -40,22 +49,26 @@ export default function App() {
                 setShowListReaction("")
               } else setShowListReaction(message._id)
             }}
+            onShowReaction={() => {
+              console.log(message.reactions)
+              setReactDetail(message.reactions)
+            }}
           >
             {showListReaction == message._id ? (
-              <ListReaction 
+              <ListReaction
                 msg_id={message._id} 
                 user_id={NAME} 
                 callback={() => setShowListReaction("")} />) : <></>}
           </Message>
         ))}
       </div>
+
       <form
         onSubmit={async (e) => {
           e.preventDefault();
-          await sendMessage({ body: newMessageText, author: NAME, reactions: [] });
+          await sendMessage({type: 'text', body: newMessageText, author: NAME, reactions: [] });
           setNewMessageText("");
-        }}
-      >
+        }}>
         <input
           value={newMessageText}
           onChange={async (e) => {
@@ -64,10 +77,26 @@ export default function App() {
           }}
           placeholder="Write a message…"
         />
-        <button type="submit" disabled={!newMessageText}>
+        <div 
+          onClick={() => {
+            console.log(showVoice)
+            setShowVoice(!showVoice)
+          }} 
+          className='voice' 
+          type="submit" 
+          disabled={!newMessageText}
+        >
+          Send
+        </div>
+        <button className='submit' type="submit" disabled={!newMessageText}>
           Send
         </button>
       </form>
+
+      {reactDetail ? <ReactionDetail 
+                              reactions={reactDetail} 
+                              id={"showReactionDetail"}
+                              onCloseThis={() => setReactDetail(undefined)} /> : <></>}
     </main>
   );
 }

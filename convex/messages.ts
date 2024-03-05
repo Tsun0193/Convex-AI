@@ -12,13 +12,13 @@ export const list = query({
 });
 
 export const send = mutation({
-  args: { body: v.string(), author: v.string(), reactions: v.array(v.object({
+  args: { type: v.string(), body: v.string(), author: v.string(), reactions: v.array(v.object({
       user_id: v.string(),
       emo: v.string()
     })) },
-  handler: async (ctx, { body, author, reactions }) => {
+  handler: async (ctx, {type, body, author, reactions }) => {
     // Send a new message.
-    await ctx.db.insert("messages", { body, author, reactions: [] });
+    await ctx.db.insert("messages", {type, body, author, reactions: [] });
   },
 });
 
