@@ -2,24 +2,28 @@ import torch
 import os
 import numpy as np
 import argparse
+from flask import Flask, request
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
-def load(model_name: str = "joeddav/distilbert-base-uncased-go-emotions-student", device: str = 'cpu'):
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
-    model = AutoModelForSequenceClassification.from_pretrained(model_name)
+app = Flask(__name__)
 
-    if device == 'cuda':
-        model = model.to('cuda')
+model_name = "joeddav/distilbert-base-uncased-go-emotions-student"
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+model = AutoModelForSequenceClassification.from_pretrained(model_name)
+genres = list(model.config.id2label.values())
 
-    genres = list(model.config.id2label.values())
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
+model.to(device)
+
+@app.route('/classify', methods=['POST'])
+def classify() -> str:
+    message = request.args.get('message')
+    if message is None or message.strip() == "":
+        return "Error: No message provided"
     
-    return [tokenizer, model, genres]
-
-def classify(text: str, tokenizer: AutoTokenizer, model: AutoModelForSequenceClassification, 
-             genres: list, threshold: float = 0.8, 
-             device: str = 'cpu') -> str:
     encoding = tokenizer.encode_plus (
-        text,
+        message,
+        add_special_tokens = True,
         return_tensors = "pt",
         max_length = 512,
         padding = "max_length",
@@ -30,27 +34,11 @@ def classify(text: str, tokenizer: AutoTokenizer, model: AutoModelForSequenceCla
     
     outputs = model(input_ids, attention_mask=attention_mask)
     outputs = torch.sigmoid(outputs.logits).detach().cpu().numpy().tolist()[0]
-    outputs = np.array(outputs) >= threshold
+    outputs = np.array(outputs) >= 0.8
     outputs = np.where(outputs == True)[0]
     outputs = [genres[i] for i in outputs]
 
     return outputs
 
-def main():
-    parser = argparse.ArgumentParser(description="Text Classifier")
-    parser.add_argument("--model", type=str, help="Model name", default="joeddav/distilbert-base-uncased-go-emotions-student")
-    parser.add_argument("--device", type=str, help="Device", default="cpu")
-    args = parser.parse_args()
-
-    tokenizer, model, genres = load(args.model, args.device)
-    # Loop until the user exits
-    while True:
-        text = input("Enter text: ")
-        res = classify(text, tokenizer, model, genres, device=args.device)
-        print(res)
-
-        if input('Press "q" to exit or any other key to continue: ') == "q":
-            break
-
 if __name__ == "__main__":
-    main()
+    app.run(port=5000, debug=True)
