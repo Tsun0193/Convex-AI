@@ -3,9 +3,11 @@ import os
 import numpy as np
 import argparse
 from flask import Flask, request
+from flask_cors import CORS
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
 app = Flask(__name__)
+CORS(app)
 
 model_name = "joeddav/distilbert-base-uncased-go-emotions-student"
 tokenizer = AutoTokenizer.from_pretrained(model_name)
