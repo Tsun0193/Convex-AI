@@ -1,4 +1,6 @@
 import add_react_icon from './add-reaction.svg'
+import { useQuery, useMutation } from "convex/react";
+import { api } from "../convex/_generated/api";
 import { useEffect, useState } from "react";
 import './message.css'
 import like from './like.png'
@@ -10,6 +12,8 @@ import sad from './sad.svg'
 import angry from './angry.svg'
 
 export default function Message({message, isOwner, onSetReaction, onShowReaction, children}) {
+  const user = useQuery(api.users.getInfo, {_id: message.author});
+
   const mapping = {
     'like': like,
     'dislike': dislike,
@@ -33,7 +37,7 @@ export default function Message({message, isOwner, onSetReaction, onShowReaction
           key={message._id}
           className={isOwner ? "message-mine" : ""}
         >
-          <div>{message.author}</div>
+          <div>{user?.name}</div>
           {message.type.localeCompare('text') == 0 ? <p>{message.body}</p> : <audio controls src={message.body} />}
           <img className="add_react_icon" src={add_react_icon} onClick={onSetReaction} />
           {message.reactions.length > 0 ? (

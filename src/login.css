@@ -1,0 +1,25 @@
+.auth_box {
+	width: 300px;
+	display: flex;
+	flex-direction: column;
+	margin-left: auto;
+	margin-right: auto;
+	gap: 15px;
+}
+
+.auth_box input {
+	background: none;
+	outline: none;
+	padding: 5px;
+	border-radius: 5px;
+	border: 2px solid #fff8;
+}
+
+.auth_box button {
+	background: none;
+	width: 100px;
+	margin: 0 auto;
+	color: white;
+	border-radius: 5px;
+	border: 2px solid #fff8;
+}

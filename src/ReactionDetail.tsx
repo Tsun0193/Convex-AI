@@ -1,5 +1,5 @@
 import { useQuery, useMutation } from "convex/react";
-import { api } from "../convex/_generated/api";
+import { api } from "../../convex/_generated/api";
 import { useEffect, useState } from "react";
 import './reaction_detail.css'
 import like from './like.png'
