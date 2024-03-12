@@ -54,7 +54,6 @@ export default function Home() {
               } else setShowListReaction(message._id)
             }}
             onShowReaction={() => {
-              console.log(message.reactions)
               setReactDetail(message.reactions)
             }}
           >

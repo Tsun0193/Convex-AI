@@ -20,6 +20,26 @@ export const readData = internalQuery({
   },
 });
 
+export const readDataById = internalQuery({
+  args: { _id: v.id("users") },
+  handler: async (ctx, {_id}) => {
+    const data = await ctx.db.get(_id)
+    if (!data) return 'cc'
+		return data
+  },
+});
+
+export const getDataById = action({
+	args: {_id: v.id("users")},
+	handler: async (ctx, {_id}) => {
+		const data = await ctx.runQuery(internal.users.readDataById, {
+      		_id: _id,
+    	});
+    	if (!data) return undefined
+		return data
+	}
+})
+
 export const auth = action({
 	args: {email: v.string(), password: v.string()},
 	handler: async (ctx, {email, password}) => {

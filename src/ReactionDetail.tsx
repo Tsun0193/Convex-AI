@@ -1,5 +1,5 @@
-import { useQuery, useMutation } from "convex/react";
-import { api } from "../../convex/_generated/api";
+import { useQuery, useMutation, useAction } from "convex/react";
+import { api } from "../convex/_generated/api";
 import { useEffect, useState } from "react";
 import './reaction_detail.css'
 import like from './like.png'
@@ -11,7 +11,21 @@ import sad from './sad.svg'
 import angry from './angry.svg'
 
 const ReactionDetail = ({reactions, onCloseThis, id}) => {
-	const all = []
+	let getUser = useAction(api.users.getDataById) 
+	const [all, setAll] = useState([])
+
+	const getData = async (reactions) => {
+		const promises = reactions.map(async (reaction) => {
+			const userdata = await getUser({_id: reaction.user_id})
+			return userdata
+		})
+		const users = await Promise.all(promises)
+		for (let i = 0; i < reactions.length; i++) {
+			reactions[i].username = users[i].name
+		}
+		setAll(reactions)
+	}
+
 	const likeArr = []
     const dislikeArr = []
     const loveArr = []
@@ -19,17 +33,9 @@ const ReactionDetail = ({reactions, onCloseThis, id}) => {
     const wowArr = []
     const sadArr = []
     const angryArr = []
-    console.log(reactions)
-    reactions?.forEach(reaction => {
-    	all.push(reaction)
-	 	if (reaction.emo == 'like') likeArr.push(reaction)
-	 	if (reaction.emo == 'dislike') dislikeArr.push(reaction)
-	 	if (reaction.emo == 'love') loveArr.push(reaction)
-	 	if (reaction.emo == 'haha') hahaArr.push(reaction)
-	 	if (reaction.emo == 'wow') wowArr.push(reaction)
-	 	if (reaction.emo == 'sad') sadArr.push(reaction)
-	 	if (reaction.emo == 'angry') angryArr.push(reaction)
-    })
+    useEffect(() => {
+    	getData(reactions)
+    }, [])
 	const mapping = {
 	    'like': like,
 	    'dislike': dislike,
@@ -44,7 +50,7 @@ const ReactionDetail = ({reactions, onCloseThis, id}) => {
 			<p onClick={onCloseThis} style={{cursor: "pointer", marginLeft: "auto"}}>Close</p>
 			{all?.map(reaction => (
 				<div className="reaction_detail_item">
-					<span>{reaction.user_id}</span>
+					<span>{reaction.username}</span>
 					<img className="emo_icon" src={mapping[reaction.emo]} />
 				</div>
 			))}
